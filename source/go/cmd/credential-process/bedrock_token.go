@@ -64,9 +64,16 @@ func generateBedrockToken(accessKeyID, secretAccessKey, sessionToken, region str
 		canonicalQuery.WriteString(url.QueryEscape(params.Get(k)))
 	}
 
-	// Canonical request
-	canonicalRequest := fmt.Sprintf("POST\n/\n%s\nhost:%s\n\nhost\nUNSIGNED-PAYLOAD",
-		canonicalQuery.String(), bedrockHost)
+	// Canonical request.
+	// The payload-hash line MUST be the SHA-256 of the (empty) request body, not the
+	// literal "UNSIGNED-PAYLOAD". Bedrock's CallWithBearerToken validator recomputes the
+	// canonical request with the empty-body hash (e3b0c442…b855); signing with the
+	// UNSIGNED-PAYLOAD literal yields a signature Bedrock cannot verify -> 403
+	// "Authentication failed: Please make sure your API Key is valid." (matches botocore
+	// SigV4QueryAuth, which uses the empty-body hash for a bodyless presigned request).
+	emptyPayloadHash := sha256Hex("")
+	canonicalRequest := fmt.Sprintf("POST\n/\n%s\nhost:%s\n\nhost\n%s",
+		canonicalQuery.String(), bedrockHost, emptyPayloadHash)
 
 	// String to sign
 	stringToSign := fmt.Sprintf("AWS4-HMAC-SHA256\n%s\n%s/%s/%s/aws4_request\n%s",
