@@ -1350,6 +1350,16 @@ def get_all_model_display_names() -> dict[str, str]:
     return display_names
 
 
+def get_model_display_name(model_id: str) -> str | None:
+    """Return the human-readable display name for a full CRIS model ID.
+
+    E.g. "us.anthropic.claude-opus-4-8" -> "Claude Opus 4.8",
+    "eu.anthropic.claude-sonnet-4-6" -> "Claude Sonnet 4.6 (EU)".
+    Returns None if the model ID is not in the registry.
+    """
+    return get_all_model_display_names().get(model_id)
+
+
 def get_profile_description(model_key: str, profile_key: str) -> str:
     """Get the description for a specific model profile combination."""
     if model_key not in CLAUDE_MODELS:

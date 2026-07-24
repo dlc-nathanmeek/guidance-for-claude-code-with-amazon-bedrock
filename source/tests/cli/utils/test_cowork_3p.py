@@ -1,11 +1,16 @@
 # ABOUTME: Tests for cowork_3p.py add_monitoring_config endpoint resolution
-# ABOUTME: Covers stack output success, stack failure with profile fallback, and both missing
+# ABOUTME: and inferenceModels object-format generation (CRIS-ID resolution).
 
 """Tests for CoWork 3P monitoring configuration (endpoint resolution + auth headers)."""
 
 from unittest.mock import MagicMock, patch
 
-from claude_code_with_bedrock.cli.utils.cowork_3p import add_monitoring_config
+from claude_code_with_bedrock.cli.utils.cowork_3p import (
+    add_monitoring_config,
+    build_inference_models,
+    build_inference_models_explicit,
+    build_mdm_config,
+)
 
 
 class FakeProfile:
@@ -143,3 +148,64 @@ class TestAddMonitoringConfig:
         mdm = {}
         add_monitoring_config(mdm, profile, self._make_console())
         assert "otlpHeaders" not in mdm
+
+
+class TestBuildInferenceModels:
+    """Regression tests for inferenceModels generation.
+
+    Guards issue #8 / issue_3: with a cris_prefix, bare tier aliases MUST resolve
+    to concrete CRIS model IDs in object format so Claude Desktop never resolves a
+    bare alias to an invalid model identifier (the /model/haiku/invoke 403 class).
+    Without a prefix, the legacy string passthrough is preserved.
+    """
+
+    def test_prefix_resolves_bare_aliases_to_object_format(self):
+        """Bare tiers + us prefix → object entries with real CRIS IDs + tags + labels."""
+        models = build_inference_models(["opus", "sonnet", "haiku"], "us")
+
+        # No bare strings survive — every entry is a tagged object.
+        assert all(isinstance(m, dict) for m in models), models
+        for m in models:
+            assert m["name"].startswith("us.anthropic.claude-"), m
+            # bare alias must NOT leak through as the name
+            assert m["name"] not in ("opus", "sonnet", "haiku")
+            assert m["anthropicFamilyTier"] in ("opus", "sonnet", "haiku")
+            assert m["isFamilyDefault"] is True
+            assert m["labelOverride"]  # non-empty display label
+
+        tiers = [m["anthropicFamilyTier"] for m in models]
+        assert tiers == ["opus", "sonnet", "haiku"]
+
+    def test_no_prefix_preserves_bare_strings(self):
+        """Back-compat: no prefix + all-simple aliases → unchanged string list."""
+        assert build_inference_models(["opus", "sonnet", "haiku"]) == ["opus", "sonnet", "haiku"]
+
+    def test_explicit_cris_ids_are_tier_tagged(self):
+        """Full CRIS IDs (no prefix) are tagged with tier inferred from the ID."""
+        models = build_inference_models(["us.anthropic.claude-opus-4-8"])
+        assert models == [
+            {"name": "us.anthropic.claude-opus-4-8", "anthropicFamilyTier": "opus", "isFamilyDefault": True}
+        ]
+
+    def test_eu_prefix_resolves_eu_cris_ids(self):
+        """A non-US prefix resolves to that geography's CRIS IDs."""
+        models = build_inference_models_explicit(["opus", "sonnet", "haiku"], "eu")
+        assert all(m["name"].startswith("eu.anthropic.claude-") for m in models), models
+
+    def test_only_first_model_per_tier_is_family_default(self):
+        """When two models share a tier, only the first is the family default."""
+        models = build_inference_models_explicit(["us.anthropic.claude-opus-4-8", "us.anthropic.claude-opus-4-7"], "us")
+        opus_defaults = [m for m in models if m.get("anthropicFamilyTier") == "opus" and m.get("isFamilyDefault")]
+        assert len(opus_defaults) == 1
+        assert opus_defaults[0]["name"] == "us.anthropic.claude-opus-4-8"
+
+    def test_build_mdm_config_emits_object_models_with_prefix(self):
+        """build_mdm_config threads cris_prefix through to object-format models."""
+        cfg = build_mdm_config(
+            bedrock_region="us-east-2",
+            model_aliases=["opus", "sonnet", "haiku"],
+            profile_name="test-profile",
+            cris_prefix="us",
+        )
+        models = cfg["inferenceModels"]
+        assert all(isinstance(m, dict) and m["name"].startswith("us.anthropic.") for m in models), models
