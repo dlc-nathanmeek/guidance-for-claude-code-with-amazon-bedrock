@@ -48,7 +48,10 @@ def derive_model_aliases() -> list[str]:
     return list(COWORK_DEFAULT_ALIASES)
 
 
-def build_inference_models(model_aliases: list[str]) -> list[dict[str, str | bool]]:
+def build_inference_models(
+    model_aliases: list[str],
+    cris_prefix: str | None = None,
+) -> list[dict[str, str | bool]] | list[str]:
     """Build inferenceModels entries with anthropicFamilyTier and isFamilyDefault.
 
     Claude Desktop v1.13576+ supports object entries in inferenceModels with:
@@ -57,28 +60,40 @@ def build_inference_models(model_aliases: list[str]) -> list[dict[str, str | boo
     - isFamilyDefault: Whether this is the default model for the tier
     - labelOverride: Optional display name override
 
-    When using simple string aliases ("opus", "sonnet", "haiku"), Claude Desktop
-    resolves them internally. The object format gives administrators explicit
-    control over which model IDs map to which tier shortcuts.
+    Two modes:
 
-    For backward compatibility, if aliases are simple tier names (opus/sonnet/haiku),
-    we still use the string format since Claude Desktop handles resolution. Use
-    build_inference_models_explicit() for full CRIS model IDs with tier tagging.
+    - **cris_prefix given** (e.g. "us", "eu", "global"): resolve bare tier aliases
+      to concrete CRIS model IDs and emit the OBJECT format. This is what
+      ``ccwb package`` / ``ccwb cowork generate`` use so Claude Desktop never has
+      to resolve a bare alias itself (bare aliases can resolve to an invalid model
+      identifier — the /model/haiku/invoke 403 class of failure). Explicit CRIS IDs
+      passed in this mode are tier-tagged as-is.
+
+    - **cris_prefix omitted** (legacy/back-compat): if every entry is a bare tier
+      alias, return the list unchanged as strings (Claude Desktop resolves them);
+      otherwise tier-tag any explicit model IDs. Existing callers/tests that relied
+      on the string passthrough keep working.
 
     Args:
-        model_aliases: List of model aliases or CRIS model IDs.
+        model_aliases: List of tier aliases (opus/sonnet/haiku/fable) and/or CRIS IDs.
+        cris_prefix: Cross-region profile prefix (e.g. "us", "eu", "global"). When
+            provided, bare tier aliases are resolved to CRIS IDs via
+            ``resolve_model_for_tier`` and emitted as object entries.
 
     Returns:
-        List suitable for the inferenceModels MDM key. Returns simple strings
-        for tier aliases, or object entries for explicit model IDs.
+        List suitable for the inferenceModels MDM key — object entries when
+        cris_prefix is given (or explicit IDs are present), else bare strings.
     """
-    # If all entries are simple tier aliases, return as-is for backward compat
+    if cris_prefix:
+        return build_inference_models_explicit(model_aliases, cris_prefix)
+
+    # Legacy path (no prefix): if all entries are simple tier aliases, return as-is
     all_simple = all(alias in FAMILY_TIER_MAP for alias in model_aliases)
     if all_simple:
         return model_aliases
 
     # Otherwise, build object entries with anthropicFamilyTier
-    models = []
+    models: list[dict[str, str | bool]] = []
     tier_seen: dict[str, bool] = {}  # Track which tiers have a default set
     for alias in model_aliases:
         if alias in FAMILY_TIER_MAP:
@@ -94,6 +109,61 @@ def build_inference_models(model_aliases: list[str]) -> list[dict[str, str | boo
                     entry["isFamilyDefault"] = True
                     tier_seen[tier] = True
             models.append(entry)
+    return models
+
+
+def build_inference_models_explicit(
+    model_aliases: list[str],
+    cris_prefix: str,
+) -> list[dict[str, str | bool]]:
+    """Build OBJECT-format inferenceModels with concrete CRIS model IDs.
+
+    Bare tier aliases (opus/sonnet/haiku/fable) are resolved to the newest CRIS
+    model ID available for ``cris_prefix`` via ``resolve_model_for_tier`` and
+    tagged with anthropicFamilyTier + isFamilyDefault + labelOverride. Entries
+    that are already full model IDs are tier-tagged in place (tier inferred from
+    the ID). Resolution failures fall back to keeping the bare alias so generation
+    never crashes on an unknown tier/prefix combination.
+
+    Args:
+        model_aliases: List of tier aliases and/or CRIS model IDs.
+        cris_prefix: Cross-region profile prefix, e.g. "us", "eu", "global".
+
+    Returns:
+        List of object entries for the inferenceModels MDM key.
+    """
+    # Local import to avoid a module-level import cycle (models.py is heavy).
+    from claude_code_with_bedrock.models import get_model_display_name, resolve_model_for_tier
+
+    models: list[dict[str, str | bool]] = []
+    tier_seen: dict[str, bool] = {}  # first model per tier becomes the family default
+
+    for alias in model_aliases:
+        if alias in FAMILY_TIER_MAP:
+            tier = FAMILY_TIER_MAP[alias]
+            model_id = resolve_model_for_tier(tier, cris_prefix)
+            if not model_id:
+                # No CRIS model for this tier/prefix — keep the bare alias rather
+                # than emit a broken entry; Claude Desktop will resolve it (or the
+                # admin can override via --models).
+                models.append(alias)
+                continue
+        else:
+            # Already a full model ID.
+            model_id = alias
+            tier = _infer_tier_from_model_id(alias)
+
+        entry: dict[str, str | bool] = {"name": model_id}
+        if tier:
+            entry["anthropicFamilyTier"] = tier
+            if tier not in tier_seen:
+                entry["isFamilyDefault"] = True
+                tier_seen[tier] = True
+        label = get_model_display_name(model_id)
+        if label:
+            entry["labelOverride"] = label
+        models.append(entry)
+
     return models
 
 
@@ -155,6 +225,7 @@ def build_mdm_config(
     extra_keys: dict[str, str] | None = None,
     credential_mode: str = "helper",
     credential_helper_ttl_sec: int = 3500,
+    cris_prefix: str | None = None,
 ) -> dict:
     """Build the base CoWork 3P MDM configuration dictionary.
 
@@ -183,6 +254,12 @@ def build_mdm_config(
         credential_helper_ttl_sec: Cache TTL for the credential helper output in
             seconds (default: 3500, slightly under the 1h STS token lifetime to
             ensure refresh happens before expiry).
+        cris_prefix: Cross-region profile prefix (e.g. "us", "eu", "global"). When
+            given, bare tier aliases in model_aliases are resolved to concrete CRIS
+            model IDs and emitted in object format (name/anthropicFamilyTier/
+            isFamilyDefault/labelOverride) so Claude Desktop never resolves a bare
+            alias to an invalid model identifier. When omitted, legacy string
+            passthrough is preserved.
 
     Returns:
         Dictionary of MDM configuration key-value pairs.
@@ -190,7 +267,7 @@ def build_mdm_config(
     config = {
         "inferenceProvider": "bedrock",
         "inferenceBedrockRegion": bedrock_region,
-        "inferenceModels": build_inference_models(model_aliases),
+        "inferenceModels": build_inference_models(model_aliases, cris_prefix),
         "isClaudeCodeForDesktopEnabled": True,
         "isDesktopExtensionEnabled": True,
         "isDesktopExtensionDirectoryEnabled": True,
