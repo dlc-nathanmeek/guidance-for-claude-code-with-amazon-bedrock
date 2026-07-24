@@ -134,6 +134,18 @@ Resources:
               - 'bedrock:ListInferenceProfiles'
               - 'bedrock:GetInferenceProfile'
             Resource: '*'
+          # CallWithBearerToken (Claude Desktop 3P bearer-token / helper-script path)
+          # authorizes against Resource "*" — NOT a model ARN. The model-scoped grants
+          # above never match this action, so it needs a dedicated "*" statement or the
+          # Desktop bearer flow gets AccessDenied. Region-gated to AllowedBedrockRegions.
+          - Sid: AllowCallWithBearerToken
+            Effect: Allow
+            Action:
+              - 'bedrock:CallWithBearerToken'
+            Resource: '*'
+            Condition:
+              StringEquals:
+                'aws:RequestedRegion': !Ref AllowedBedrockRegions
           - !If
             - MonitoringEnabled
             - Sid: AllowCloudWatchMetrics
