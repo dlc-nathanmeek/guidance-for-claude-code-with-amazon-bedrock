@@ -1,0 +1,13 @@
+{
+  "env": {
+    "CLAUDE_CODE_USE_BEDROCK": "1",
+    "AWS_REGION": "us-east-2",
+    "AWS_PROFILE": "dlc-corporate-pilot-us-east-2",
+    "AWS_CREDENTIAL_PROCESS": "__CREDENTIAL_PROCESS_PATH__ --profile dlc-corporate-pilot-us-east-2",
+    "ANTHROPIC_MODEL": "opus",
+    "ANTHROPIC_SMALL_FAST_MODEL": "us.anthropic.claude-haiku-4-5-20251001-v1:0",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "us.anthropic.claude-haiku-4-5-20251001-v1:0",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "us.anthropic.claude-sonnet-5",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "us.anthropic.claude-opus-4-8"
+  }
+}

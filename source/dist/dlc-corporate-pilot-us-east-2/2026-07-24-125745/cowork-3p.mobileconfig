@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PayloadContent</key>
+	<array>
+		<dict>
+			<key>PayloadDisplayName</key>
+			<string>Claude Cowork - Bedrock Configuration</string>
+			<key>PayloadIdentifier</key>
+			<string>com.anthropic.claudefordesktop.config</string>
+			<key>PayloadType</key>
+			<string>com.anthropic.claudefordesktop</string>
+			<key>PayloadUUID</key>
+			<string>84E5E47D-E390-43A6-96D4-8877642A9280</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+			<key>chatAdvancedFileAnalysisEnabled</key>
+			<string>true</string>
+			<key>chatTabEnabled</key>
+			<string>true</string>
+			<key>inferenceBedrockProfile</key>
+			<string>dlc-corporate-pilot-us-east-2</string>
+			<key>inferenceBedrockRegion</key>
+			<string>us-east-2</string>
+			<key>inferenceCredentialHelper</key>
+			<string>/Users/nmeek/claude-code-with-bedrock/cowork-credential-helper.sh</string>
+			<key>inferenceCredentialHelperSilentRefreshEnabled</key>
+			<string>true</string>
+			<key>inferenceCredentialHelperTtlSec</key>
+			<string>3500</string>
+			<key>inferenceCredentialKind</key>
+			<string>helper-script</string>
+			<key>inferenceModels</key>
+			<string>[{"name": "us.anthropic.claude-opus-4-7", "labelOverride": "Claude Opus 4.7", "anthropicFamilyTier": "opus", "isFamilyDefault": true}, {"name": "us.anthropic.claude-sonnet-4-6", "labelOverride": "Claude Sonnet 4.6", "anthropicFamilyTier": "sonnet", "isFamilyDefault": true}, {"name": "us.anthropic.claude-haiku-4-5-20251001-v1:0", "labelOverride": "Claude Haiku 4.5", "anthropicFamilyTier": "haiku", "isFamilyDefault": true}]</string>
+			<key>inferenceProvider</key>
+			<string>bedrock</string>
+			<key>isClaudeCodeForDesktopEnabled</key>
+			<string>true</string>
+			<key>isDesktopExtensionDirectoryEnabled</key>
+			<string>true</string>
+			<key>isDesktopExtensionEnabled</key>
+			<string>true</string>
+			<key>isDesktopExtensionSignatureRequired</key>
+			<string>true</string>
+			<key>isLocalDevMcpEnabled</key>
+			<string>true</string>
+		</dict>
+	</array>
+	<key>PayloadDisplayName</key>
+	<string>Claude Cowork with Amazon Bedrock</string>
+	<key>PayloadIdentifier</key>
+	<string>com.company.claude-cowork-bedrock</string>
+	<key>PayloadType</key>
+	<string>Configuration</string>
+	<key>PayloadUUID</key>
+	<string>13B91F0D-F489-47A6-AF1F-81B054D1EF11</string>
+	<key>PayloadVersion</key>
+	<integer>1</integer>
+</dict>
+</plist>

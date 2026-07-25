@@ -1,0 +1,18 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CURRENT_USER\SOFTWARE\Policies\Claude]
+"inferenceProvider"="bedrock"
+"inferenceBedrockRegion"="us-east-2"
+"inferenceModels"="[\"opus\", \"sonnet\", \"haiku\"]"
+"isClaudeCodeForDesktopEnabled"="true"
+"isDesktopExtensionEnabled"="true"
+"isDesktopExtensionDirectoryEnabled"="true"
+"isDesktopExtensionSignatureRequired"="true"
+"isLocalDevMcpEnabled"="true"
+"inferenceCredentialHelper"="__CCWB_HOME__\\claude-code-with-bedrock\\cowork-credential-helper.cmd"
+"inferenceCredentialHelperTtlSec"="3500"
+"inferenceCredentialHelperSilentRefreshEnabled"="true"
+"inferenceBedrockProfile"="dlc-corporate-pilot-us-east-2"
+"inferenceCredentialKind"="helper-script"
+"chatTabEnabled"="true"
+"chatAdvancedFileAnalysisEnabled"="true"

@@ -1,7 +1,6 @@
 .DS_Store
 
 # Build artifacts
-dist/
 build/
 *.egg-info/
 *.spec

@@ -1,0 +1,36 @@
+{
+  "inferenceProvider": "bedrock",
+  "inferenceBedrockRegion": "us-east-2",
+  "inferenceModels": [
+    {
+      "name": "us.anthropic.claude-opus-4-7",
+      "labelOverride": "Claude Opus 4.7",
+      "anthropicFamilyTier": "opus",
+      "isFamilyDefault": true
+    },
+    {
+      "name": "us.anthropic.claude-sonnet-4-6",
+      "labelOverride": "Claude Sonnet 4.6",
+      "anthropicFamilyTier": "sonnet",
+      "isFamilyDefault": true
+    },
+    {
+      "name": "us.anthropic.claude-haiku-4-5-20251001-v1:0",
+      "labelOverride": "Claude Haiku 4.5",
+      "anthropicFamilyTier": "haiku",
+      "isFamilyDefault": true
+    }
+  ],
+  "isClaudeCodeForDesktopEnabled": true,
+  "isDesktopExtensionEnabled": true,
+  "isDesktopExtensionDirectoryEnabled": true,
+  "isDesktopExtensionSignatureRequired": true,
+  "isLocalDevMcpEnabled": true,
+  "inferenceCredentialHelper": "/Users/nmeek/claude-code-with-bedrock/cowork-credential-helper.sh",
+  "inferenceCredentialHelperTtlSec": "3500",
+  "inferenceCredentialHelperSilentRefreshEnabled": "true",
+  "inferenceBedrockProfile": "dlc-corporate-pilot-us-east-2",
+  "inferenceCredentialKind": "helper-script",
+  "chatTabEnabled": true,
+  "chatAdvancedFileAnalysisEnabled": true
+}

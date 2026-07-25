@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PayloadContent</key>
+	<array>
+		<dict>
+			<key>PayloadType</key>
+			<string>com.anthropic.claudefordesktop</string>
+			<key>PayloadUUID</key>
+			<string>D5137053-C0BD-4D83-B324-17B3D054B353</string>
+			<key>PayloadIdentifier</key>
+			<string>com.anthropic.claudefordesktop.config</string>
+			<key>PayloadDisplayName</key>
+			<string>Claude Cowork - Bedrock Configuration</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+			<key>inferenceProvider</key>
+			<string>bedrock</string>
+			<key>inferenceBedrockRegion</key>
+			<string>us-east-2</string>
+			<key>inferenceModels</key>
+			<string>[{&quot;name&quot;: &quot;us.anthropic.claude-opus-4-8&quot;, &quot;anthropicFamilyTier&quot;: &quot;opus&quot;, &quot;isFamilyDefault&quot;: true, &quot;labelOverride&quot;: &quot;Claude Opus 4.8&quot;}, {&quot;name&quot;: &quot;us.anthropic.claude-sonnet-5&quot;, &quot;anthropicFamilyTier&quot;: &quot;sonnet&quot;, &quot;isFamilyDefault&quot;: true, &quot;labelOverride&quot;: &quot;Claude Sonnet 5&quot;}, {&quot;name&quot;: &quot;us.anthropic.claude-haiku-4-5-20251001-v1:0&quot;, &quot;anthropicFamilyTier&quot;: &quot;haiku&quot;, &quot;isFamilyDefault&quot;: true, &quot;labelOverride&quot;: &quot;Claude Haiku 4.5&quot;}]</string>
+			<key>isClaudeCodeForDesktopEnabled</key>
+			<string>true</string>
+			<key>isDesktopExtensionEnabled</key>
+			<string>true</string>
+			<key>isDesktopExtensionDirectoryEnabled</key>
+			<string>true</string>
+			<key>isDesktopExtensionSignatureRequired</key>
+			<string>true</string>
+			<key>isLocalDevMcpEnabled</key>
+			<string>true</string>
+			<key>inferenceCredentialHelper</key>
+			<string>/Users/nmeek/claude-code-with-bedrock/cowork-credential-helper.sh</string>
+			<key>inferenceCredentialHelperTtlSec</key>
+			<string>3500</string>
+			<key>inferenceCredentialHelperSilentRefreshEnabled</key>
+			<string>true</string>
+			<key>inferenceBedrockProfile</key>
+			<string>dlc-corporate-pilot-us-east-2</string>
+			<key>inferenceCredentialKind</key>
+			<string>helper-script</string>
+			<key>chatTabEnabled</key>
+			<string>true</string>
+			<key>chatAdvancedFileAnalysisEnabled</key>
+			<string>true</string>
+		</dict>
+	</array>
+	<key>PayloadDisplayName</key>
+	<string>Claude Cowork with Amazon Bedrock</string>
+	<key>PayloadIdentifier</key>
+	<string>com.company.claude-cowork-bedrock</string>
+	<key>PayloadType</key>
+	<string>Configuration</string>
+	<key>PayloadUUID</key>
+	<string>18FE0D71-D524-41AA-9040-102EAF0B5EFB</string>
+	<key>PayloadVersion</key>
+	<integer>1</integer>
+</dict>
+</plist>

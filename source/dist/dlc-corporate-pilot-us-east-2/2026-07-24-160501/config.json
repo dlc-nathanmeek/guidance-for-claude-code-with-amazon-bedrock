@@ -1,0 +1,17 @@
+{
+  "dlc-corporate-pilot-us-east-2": {
+    "provider_domain": "login.microsoftonline.com/684fdbeb-a2a8-4079-a6e8-1fefe44f7477/v2.0",
+    "client_id": "f14eba1f-591b-4a73-a28d-ade43a9437e4",
+    "aws_region": "us-east-2",
+    "provider_type": "azure",
+    "credential_storage": "keyring",
+    "cross_region_profile": "us",
+    "sso_enabled": true,
+    "federated_role_arn": "arn:aws:iam::374128992964:role/BedrockAzureFederatedRole",
+    "federation_type": "direct",
+    "max_session_duration": 43200,
+    "selected_model": "us.anthropic.claude-opus-4-7",
+    "azure_auth_mode": "secret",
+    "redirect_port": 8400
+  }
+}
